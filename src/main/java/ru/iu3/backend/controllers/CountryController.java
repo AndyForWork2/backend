@@ -5,14 +5,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ru.iu3.backend.models.Artist;
 import ru.iu3.backend.models.Country;
 import ru.iu3.backend.repositories.CountryRepository;
 
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -37,8 +36,8 @@ public class CountryController {
             String error;
             if (ex.getMessage().contains("countries.name_UNIQUE"))
                 error = "countyAlreadyExists";
-            else if (ex.getMessage().isEmpty())
-                error = "countryIsEmpty";
+            else if (ex.getMessage().contains("Column 'name' cannot be null"))
+                error = "countryNameIsEmpty";
             else
                 error = "undefinedError";
             Map<String, String>
@@ -77,5 +76,14 @@ public class CountryController {
         else
             resp.put("deleted", Boolean.FALSE);
         return ResponseEntity.ok(resp);
+    }
+
+    @GetMapping("/countries/{id}/artists")
+    public ResponseEntity<Set<Artist>> getCountryArtists(@PathVariable(value = "id") Long countryId) {
+        Optional<Country> cc = countryRepository.findById(countryId);
+        if (cc.isPresent()) {
+            return ResponseEntity.ok(cc.get().artists);
+        }
+        return ResponseEntity.ok(new HashSet<Artist>());
     }
 }
