@@ -32,30 +32,33 @@ public class AuthenticationProvider extends AbstractUserDetailsAuthenticationPro
 
     @Override
     protected UserDetails retrieveUser(String userName,
-                                       UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) throws AuthenticationException {
+                                       UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken)
+            throws AuthenticationException {
+
         Object token = usernamePasswordAuthenticationToken.getCredentials();
         Optional<ru.iu3.backend.models.User> uu = userRepository.findByToken(String.valueOf(token));
         if (!uu.isPresent())
-            throw new UsernameNotFoundException("user is not found :(");
+            throw new UsernameNotFoundException("user is not found");
         ru.iu3.backend.models.User u = uu.get();
 
         boolean timeout = true;
         LocalDateTime dt  = LocalDateTime.now();
         if (u.activity != null) {
             LocalDateTime nt = u.activity.plusMinutes(sessionTimeout);
-            if (dt.isBefore(nt)) timeout = false;
+            if (dt.isBefore(nt))
+                timeout = false;
         }
-
         if (timeout) {
             u.token = null;
             userRepository.save(u);
             throw new NonceExpiredException("session is expired");
-        } else {
+        }
+        else {
             u.activity = dt;
             userRepository.save(u);
         }
 
-        UserDetails user = new User(u.login, u.password,
+        UserDetails user= new User(u.login, u.password,
                 true,
                 true,
                 true,
