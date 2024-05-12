@@ -1,6 +1,10 @@
 package ru.iu3.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "artists")
@@ -26,4 +30,8 @@ public class Artist {
     @ManyToOne()
     @JoinColumn(name = "countryid")
     public Country country;
+
+    @OneToMany(mappedBy = "artist")
+    public Set<Painting>
+            paintings = new HashSet<>();
 }

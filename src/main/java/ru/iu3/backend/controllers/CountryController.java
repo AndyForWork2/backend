@@ -1,6 +1,9 @@
 package ru.iu3.backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,15 +25,15 @@ public class CountryController {
     CountryRepository countryRepository;
 
     @GetMapping("/countries")
-    public List
-    getAllCountries() {
-        return countryRepository.findAll();
+    public Page<Country> getAllCountries(@RequestParam("page") String page, @RequestParam("limit") String  limit) {
+        if (!page.equals("undefined") )
+            return countryRepository.findAll(PageRequest.of(Integer.parseInt(page), Integer.parseInt(limit), Sort.by(Sort.Direction.ASC, "name")));
+        return countryRepository.findAll(PageRequest.of(0, Integer.parseInt(limit), Sort.by(Sort.Direction.ASC, "name")));
     }
 
 
     @PostMapping("/countries")
-    public ResponseEntity<Object>
-    createCountry(@Valid @RequestBody Country country)
+    public ResponseEntity<Object> createCountry(@Valid @RequestBody Country country)
             throws DataValidationException {
         try {
             Country nc = countryRepository.save(country);

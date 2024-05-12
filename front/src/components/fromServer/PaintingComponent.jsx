@@ -1,13 +1,13 @@
 import React, {useEffect, useState} from 'react';
-import BackendService from '../services/BackendService';
+import BackendService from '../../services/BackendService';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {alertActions} from '../utils/Rdx.jsx';
+import {alertActions} from '../../utils/Rdx.jsx';
 import {connect} from "react-redux";
 import {Form} from "react-bootstrap";
 import {useNavigate, useParams} from "react-router-dom";
 import {faChevronLeft, faSave} from "@fortawesome/free-solid-svg-icons";
 
-const CountryComponent = props => {
+const PaintingComponent = props => {
     const params = useParams();
     const [id, setId] = useState(params.id);
     const [name, setName] = useState("");
@@ -16,7 +16,7 @@ const CountryComponent = props => {
 
     useEffect(() => {
         if (parseInt(id) !== -1) {
-            BackendService.retrieveCountry(id)
+            BackendService.retrievePainting(id)
                 .then((resp) => {
                     setName(resp.data.name)
                 })
@@ -28,20 +28,21 @@ const CountryComponent = props => {
         event.preventDefault();
         event.stopPropagation();
         let err = null;
-        if (!name) err = "Название страны должно быть указано";
+        if (name == "") err = "Название картины должно быть указано";
         if (err) props.dispatch(alertActions.error(err));
-        let country = {id, name};
-
-        if (parseInt(country.id) === -1) {
-            BackendService.createCountry(country)
-                .then(() => navigate(`/countries`))
-                .catch(() => {
-                })
-        } else {
-            BackendService.updateCountry(country)
-                .then(() => navigate(`/countries`))
-                .catch(() => {
-                })
+        let painting = {id, name};
+        if (!err){
+            if (parseInt(painting.id) === -1) {
+                BackendService.createPainting(painting)
+                    .then(() => navigate(`/paintings`))
+                    .catch(() => {
+                    })
+            } else {
+                BackendService.updatePainting(painting)
+                    .then(() => navigate(`/paintings`))
+                    .catch(() => {
+                    })
+            }
         }
     }
 
@@ -50,9 +51,9 @@ const CountryComponent = props => {
     return (
         <div className="m-4">
             <div className=" row my-2 mr-0">
-                <h3>Страна</h3>
+                <h3>Картина</h3>
                 <button className="btn btn-outline-secondary ml-auto"
-                        onClick={() => navigate(`/countries`)}
+                        onClick={() => navigate(`/paintings`)}
                 ><FontAwesomeIcon icon={faChevronLeft}/>{' '}Назад</button>
             </div>
             <Form onSubmit={onSubmit}>
@@ -60,7 +61,7 @@ const CountryComponent = props => {
                     <Form.Label>Название</Form.Label>
                     <Form.Control
                         type="text"
-                        placeholder="Введите название страны"
+                        placeholder="Введите название картины"
                         onChange={(e) => {setName(e.target.value)}}
                         value={name}
                         name="name"
@@ -76,4 +77,4 @@ const CountryComponent = props => {
     )
 }
 
-export default connect()(CountryComponent);
+export default connect()(PaintingComponent);

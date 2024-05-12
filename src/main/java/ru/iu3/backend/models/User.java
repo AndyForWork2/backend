@@ -44,6 +44,9 @@ public class User {
     @ManyToMany(mappedBy = "users")
     public Set<Museum> museums = new HashSet<>();
 
+    @Transient
+    public String np;
+
     public void addMuseum(Museum m) {
         this.museums.add(m);
         m.users.add(this);
